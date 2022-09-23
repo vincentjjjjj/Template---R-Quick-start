@@ -6,8 +6,8 @@ output: html_document
 ---
 
 ```{r}
-# options(encoding = "UTF-8", warn = -1, "openxlsx.dateFormat" = "dd/mm/yyyy")
-options(encoding = "UTF-8", "openxlsx.dateFormat" = "dd/mm/yyyy", xlsx.date.format = "dd/mm/yyyy", DT.warn.size = FALSE, readxl.show_progress = T)
+# options(encoding = "UTF-8", warn = -1, "openxlsx.dateFormat" = "dd/mm/yyyy", xlsx.date.format = "dd/mm/yyyy", DT.warn.size = FALSE)
+options(encoding = "UTF-8", "openxlsx.dateFormat" = "dd/mm/yyyy", xlsx.date.format = "dd/mm/yyyy", DT.warn.size = FALSE)
 
 
 if (F) {
