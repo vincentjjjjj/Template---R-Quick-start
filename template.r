@@ -10,13 +10,14 @@ output: html_document
 options(encoding = "UTF-8", "openxlsx.dateFormat" = "dd/mm/yyyy", xlsx.date.format = "dd/mm/yyyy", DT.warn.size = FALSE)
 
 
-if (F) {
+compile <- function() {
   input  = basename(rstudioapi::getSourceEditorContext()$path)
   output = gsub(".Rmd", ".R", input)
   knitr::purl(input, output = output)
   writeLines(as.character(parse(output)), output)
   
   # output_bat = gsub(".Rmd", ".bat", input)
+  # output_bat = "run.bat"
   # writeLines(paste0("@echo off\nRScript.exe --encoding=UTF-8 ", output, "\npause\n"), output_bat)
 }
 
@@ -35,8 +36,10 @@ pacman::p_load(
   stringi,
   fs,
   plyr,
+  tictoc,
+  janitor,
+  openxlsx2,
   readxl,
-  writexl,
   lubridate,
   tidyverse
 )
@@ -76,20 +79,20 @@ write_xlsx <- function(df, filename) {
 }
 
 
-write_csv <- function(df, filename) {
-  filename %>% path_dir() %>% dir_create()
-  filename = filename %>% path_ext_set("csv")
-  df = df %>% ungroup()
-  cols_date   = which(map(df, is.Date) == T)
-  cols_period = which(map(df, is.period) == T)
-  df = df %>% mutate(across(all_of(cols_period), ~ .x %>% hms::hms() %>% str_sub(end = -4)))
-  df = df %>% mutate(across(everything(), as.character))
-  df %>% write_csv(filename)
+write_csv <- function(df, filename, dirname = DIR_OUTPUT) {
+  dirname |> dir_create()
+  filename = filename |> path_file() |> path_ext_set("csv")
+  
+  df = df |> ungroup()
+  df = df |> mutate(across(where(is.period), hms::hms))
+  df = df |> select(sort(names(df))) |> janitor::clean_names("title")
+  
+  df |> readr::write_excel_csv(path(dirname, filename), na = "")
 }
 
 
-clean_colnames <- function(.tbl) {
-  .tbl %>% rename_all(~ .x %>% str_to_lower() %>% str_replace_all(" |/", "_") %>% stri_trans_general("Latin-ASCII") %>% str_remove_all("[^a-zA-Z0-9_]"))
+clean_names <- function(.data) {
+  .data |> select(sort(names(.data))) |> janitor::clean_names()
 }
 ```
 
